@@ -1,6 +1,4 @@
-﻿using PM.Core;
-using PM.Core.Repository.ConreateRepository;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,8 +6,10 @@ using System.Text;
 
 namespace PM.Data.Entity
 {
-    public class Member : MemberRepository
+    public class Member : BaseEntity
     {
+        [Key]
+        public int Id { get; set; }
         [Required(AllowEmptyStrings = true, ErrorMessage = "İsim Alanı Boş Bırakılamaz.")]
         public string FirstName { get; set; }
         [Required(AllowEmptyStrings = true, ErrorMessage = "Soyisim Alanı Boş Bırakılamaz.")]
