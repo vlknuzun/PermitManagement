@@ -23,7 +23,7 @@ namespace PM.UI
         {
             services.AddMvc();
             services.AddDbContext<PermitManagementContext>(o =>
-            o.UseSqlServer(Configuration.GetConnectionString("Conn"), q=>q.MigrationsAssembly("Data"))
+            o.UseSqlServer(Configuration.GetConnectionString("SqlServerConnection"))
             );
             services.AddControllersWithViews();
 
