@@ -11,6 +11,6 @@ namespace PM.Data.Entity
         public int Id { get; set; }
         public DateTime StartDate { get; set; }
         public string Description { get; set; }
-        public int Day { get; set; }
+        public float Day { get; set; }
     }
 }

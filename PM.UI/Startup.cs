@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PM.Data.Context;
+using PM.Service.Services;
 
 namespace PM.UI
 {
@@ -22,10 +23,11 @@ namespace PM.UI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddDbContext<PermitManagementContext>(o =>
-            o.UseSqlServer(Configuration.GetConnectionString("SqlServerConnection"))
-            );
+            services.AddDbContext<PermitManagementContext>();
             services.AddControllersWithViews();
+
+            //DI
+            services.AddTransient<IPermitUsageService, PermitUsageService>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

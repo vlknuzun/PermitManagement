@@ -8,9 +8,9 @@ namespace PM.Data.Context
 {
     public class PermitManagementContext : DbContext
     {
-        public PermitManagementContext(DbContextOptions<PermitManagementContext> options) : base(options)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
+            optionsBuilder.UseSqlServer(@"Server=DESKTOP-U18OS4K;Database=PermitManagement;Trusted_Connection=True;");
         }
         public DbSet<PermitUsage> PermitUsages { get; set; }
         public DbSet<TitleType> TitleTypes { get; set; }
