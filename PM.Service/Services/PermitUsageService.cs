@@ -12,13 +12,18 @@ namespace PM.Service.Services
     {
         PermitManagementContext _dbContext = new PermitManagementContext();
 
-        void IPermitUsageService.AddPermitUsage(PermitUsage permitUsage)
+        public void AddPermitUsage(PermitUsage permitUsage)
         {
             _dbContext.PermitUsages.Add(permitUsage);
             Save();
         }
+        public void AddPermitUsage(List<PermitUsage> permitUsages)
+        {
+            _dbContext.PermitUsages.AddRange(permitUsages);
+            Save();
+        }
 
-        List<PermitUsage> IPermitUsageService.GetPermitUsages()
+        public List<PermitUsage> GetPermitUsages()
         {
             return _dbContext.PermitUsages.ToList();
         }
@@ -28,8 +33,26 @@ namespace PM.Service.Services
             _dbContext.SaveChanges();
         }
 
+        public List<PermitUsage> DistributeLeaves()
+        {
+            var usagesDates = PreparePermit();
+            var userList = usagesDates.GroupBy(x => x.UserId).Select(x => x.Key);
+            var permitUsages = new List<PermitUsage>();
+            foreach (var userId in userList)
+            {
+                var userPermits = usagesDates.Where(x => x.UserId == userId).OrderBy(x => x.UsageDay);
+                var titleTypeId = userPermits.First().TitleTypeId;
+                var leavingStartDate = userPermits.First().UsageDay;
+                var leavingEndDate = userPermits.Last().UsageDay;
+                permitUsages.Add(new PermitUsage { LeavingStartDate = leavingStartDate, LeavingEndDate = leavingEndDate, MemberId = userId, TitleTypeId = titleTypeId });
+            }
+            AddPermitUsage(permitUsages);
+            return permitUsages;
+        }
 
-        public void PreparePermit()
+
+
+        private List<UsagesDay> PreparePermit()
         {
 
             var usageDays = GetUsagesDays();
@@ -44,8 +67,10 @@ namespace PM.Service.Services
                     AddUsageDayAutomatic(member, usageDays);
                 }
             }
-
+            return usageDays;
         }
+
+
 
         private void AddUsageDayAutomatic(Member member, List<UsagesDay> usagesDays)
         {
@@ -115,7 +140,6 @@ namespace PM.Service.Services
 
                 for (int i = 0; i <= disableDates; i++)
                 {
-
                     usageDays.Add(new UsagesDay { TitleTypeId = item.TitleTypeId, UsageDay = item.LeavingStartDate.AddDays(i) });
                 }
             }
@@ -150,6 +174,33 @@ namespace PM.Service.Services
             //publicHolidays.Add(new PublicHoliday { Day = 1, Description = "test1 public", StartDate = new DateTime(2021, 4, 13) });
             //return publicHolidays;
             return _dbContext.PublicHolidays.ToList();
+        }
+        private List<TitleType> GetTitles()
+        {
+            return _dbContext.TitleTypes.ToList();
+        }
+
+        public List<UsageLeavesViewModel> GetCurretPermits()
+        {
+            List<UsageLeavesViewModel> usageLeaves = new List<UsageLeavesViewModel>();
+
+            var permitUsages = GetPermitUsages();
+            var members = GetMembers();
+            var titles = GetTitles();
+            foreach (var permitUsage in permitUsages)
+            {
+                var member = members.First(x => x.Id == permitUsage.MemberId);
+                var title = titles.First(x => x.Id == permitUsage.TitleTypeId);
+                usageLeaves.Add(new UsageLeavesViewModel
+                {
+                    Name = member.FirstName,
+                    LastName = member.LastName,
+                    Title = title.Title,
+                    LeavingEndDate = permitUsage.LeavingEndDate,
+                    LeavingStartDate = permitUsage.LeavingStartDate
+                }); ;
+            }
+            return usageLeaves;
         }
     }
 }

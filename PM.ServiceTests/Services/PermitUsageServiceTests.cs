@@ -14,7 +14,7 @@ namespace PM.Service.Services.Tests
         public void PreparePermitTest()
         {
             PermitUsageService permitUsageService = new PermitUsageService();
-            permitUsageService.PreparePermit();
+            //permitUsageService.PreparePermit();
         }
 
 
