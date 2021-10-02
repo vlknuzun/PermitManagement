@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PM.Data.Migrations
 {
-    public partial class Initial : Migration
+    public partial class PermitManagement : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -16,13 +16,26 @@ namespace PM.Data.Migrations
                     MemberId = table.Column<int>(type: "int", nullable: false),
                     LeavingStartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LeavingEndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PermitUsages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PublicHolidays",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Day = table.Column<float>(type: "real", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PublicHolidays", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -49,8 +62,7 @@ namespace PM.Data.Migrations
                     TitleTypeId = table.Column<int>(type: "int", nullable: false),
                     LeavingRight = table.Column<int>(type: "int", nullable: false),
                     PermitUsageId = table.Column<int>(type: "int", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -84,6 +96,9 @@ namespace PM.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Members");
+
+            migrationBuilder.DropTable(
+                name: "PublicHolidays");
 
             migrationBuilder.DropTable(
                 name: "PermitUsages");

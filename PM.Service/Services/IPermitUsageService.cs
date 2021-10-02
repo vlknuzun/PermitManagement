@@ -7,8 +7,9 @@ namespace PM.Service.Services
 {
     public interface IPermitUsageService
     {
-        public List<PermitUsage> AddPermitUsage(PermitUsage permitUsage);
+        public void AddPermitUsage(PermitUsage permitUsage);
 
         public List<PermitUsage> GetPermitUsages();
+        public void PreparePermit();
     }
 }

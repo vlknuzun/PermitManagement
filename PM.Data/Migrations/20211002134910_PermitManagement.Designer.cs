@@ -10,8 +10,8 @@ using PM.Data.Context;
 namespace PM.Data.Migrations
 {
     [DbContext(typeof(PermitManagementContext))]
-    [Migration("20211001140455_Initial")]
-    partial class Initial
+    [Migration("20211002134910_PermitManagement")]
+    partial class PermitManagement
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -42,9 +42,6 @@ namespace PM.Data.Migrations
                     b.Property<int>("LeavingRight")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<int?>("PermitUsageId")
                         .HasColumnType("int");
 
@@ -67,9 +64,6 @@ namespace PM.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -82,12 +76,30 @@ namespace PM.Data.Migrations
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ModifiedDate")
+                    b.HasKey("Id");
+
+                    b.ToTable("PermitUsages");
+                });
+
+            modelBuilder.Entity("PM.Data.Entity.PublicHoliday", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<float>("Day")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("PermitUsages");
+                    b.ToTable("PublicHolidays");
                 });
 
             modelBuilder.Entity("PM.Data.Entity.TitleType", b =>
