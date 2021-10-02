@@ -10,11 +10,16 @@ namespace PM.Service.Services
     public class PermitUsageService : IPermitUsageService
     {
         PermitManagementContext _dbContext = new PermitManagementContext();
-        
-        public void GetSomeValues()
+
+        List<PermitUsage> IPermitUsageService.AddPermitUsage(PermitUsage permitUsage)
         {
-            var values = _dbContext.Members.FirstOrDefault();
+            _dbContext.PermitUsages.Add(permitUsage);
+            return _dbContext.PermitUsages.ToList();
         }
 
+        List<PermitUsage> IPermitUsageService.GetPermitUsages()
+        {
+            return  _dbContext.PermitUsages.ToList();
+        }
     }
 }

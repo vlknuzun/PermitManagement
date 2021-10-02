@@ -17,7 +17,6 @@ namespace PM.Data.Entity
         public int MemberId { get; set; }
         public DateTime LeavingStartDate { get; set; }
         public DateTime LeavingEndDate { get; set; }
-        public DateTime CreateDate { get; set; }
         public List<Member> Members { get; set; }
     }
     

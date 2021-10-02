@@ -34,7 +34,7 @@ namespace PM.UI.Controllers
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
-            _permitUsageService.GetSomeValues();
+            //_permitUsageService.GetSomeValues();
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

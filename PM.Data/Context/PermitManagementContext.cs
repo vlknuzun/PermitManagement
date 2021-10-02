@@ -15,5 +15,6 @@ namespace PM.Data.Context
         public DbSet<PermitUsage> PermitUsages { get; set; }
         public DbSet<TitleType> TitleTypes { get; set; }
         public DbSet<Member> Members { get; set; }
+        public DbSet<PublicHoliday> PublicHolidays { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PM.Data.Context;
+using PM.Service.DependencyResolver;
 using PM.Service.Services;
 
 namespace PM.UI
@@ -27,7 +28,14 @@ namespace PM.UI
             services.AddControllersWithViews();
 
             //DI
-            services.AddTransient<IPermitUsageService, PermitUsageService>();
+            services.AddDependecies();
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -50,6 +58,7 @@ namespace PM.UI
 
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+            app.UseCors("MyPolicy");
 
             app.UseRouting();
 
