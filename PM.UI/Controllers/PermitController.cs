@@ -23,13 +23,13 @@ namespace PM.UI.Controllers
         public IActionResult GetPermits()
         {
            
-            return Json(_permitUsageService.GetCurretPermits());
+            return Json(_permitUsageService.GetCurretPermits().OrderBy(x=>x.LeavingStartDate).ToList());
         }
         [HttpPost]
         public IActionResult GetDisributePermits()
         {
             _permitUsageService.DistributeLeaves();
-            return Json(_permitUsageService.GetCurretPermits());
+            return Json(_permitUsageService.GetCurretPermits().OrderBy(x => x.LeavingStartDate).ToList());
         }
 
     }
