@@ -87,7 +87,7 @@ namespace PM.Service.Services
                 else if (IsWorkDay(date.DayOfWeek) && !usagesDays.Any(x => x.IsBlocked && x.UsageDay == date))
                 {
                     leavingCounter++;
-
+                    var asd = member.Id;
                 }
 
                 if (leavingCounter == member.LeavingRight)
@@ -140,7 +140,7 @@ namespace PM.Service.Services
 
                 for (int i = 0; i <= disableDates; i++)
                 {
-                    usageDays.Add(new UsagesDay { TitleTypeId = item.TitleTypeId, UsageDay = item.LeavingStartDate.AddDays(i) });
+                    usageDays.Add(new UsagesDay { TitleTypeId = item.TitleTypeId, UsageDay = item.LeavingStartDate.AddDays(i), IsSaved=true, IsBlocked=true });
                 }
             }
 

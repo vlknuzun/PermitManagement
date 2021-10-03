@@ -28,7 +28,7 @@ export class Member extends Component {
         return (
             <div>
                 <button className="btn btn-primary" onClick={this.handleClick}>
-                    Increment
+                    Distribute
         </button>
                 <table className="table table-striped" aria-labelledby="tabelLabel">
                     <thead>
