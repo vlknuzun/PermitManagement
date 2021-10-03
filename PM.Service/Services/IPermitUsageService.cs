@@ -11,7 +11,7 @@ namespace PM.Service.Services
         public void AddPermitUsage(PermitUsage permitUsage);
         public void AddPermitUsage(List<PermitUsage> permitUsages);
         public List<PermitUsage> GetPermitUsages();
-        public List<PermitUsage> DistributeLeaves();
+        public void DistributeLeaves();
         public List<UsageLeavesViewModel> GetCurretPermits();
 
     }

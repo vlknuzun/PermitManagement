@@ -12,7 +12,6 @@ namespace PM.Service.Models
         public bool IsSaved { get; set; }
         public bool IsBlocked { get; set; }
 
-        
     }
 
 }

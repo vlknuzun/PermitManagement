@@ -28,9 +28,8 @@ namespace PM.UI.Controllers
         [HttpPost]
         public IActionResult GetDisributePermits()
         {
-            
-
-            return Json(_permitUsageService.DistributeLeaves());
+            _permitUsageService.DistributeLeaves();
+            return Json(_permitUsageService.GetCurretPermits());
         }
 
     }

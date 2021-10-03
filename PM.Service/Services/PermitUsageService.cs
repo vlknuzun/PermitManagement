@@ -33,28 +33,28 @@ namespace PM.Service.Services
             _dbContext.SaveChanges();
         }
 
-        public List<PermitUsage> DistributeLeaves()
+        public void DistributeLeaves()
         {
             var usagesDates = PreparePermit();
             var userList = usagesDates.GroupBy(x => x.UserId).Select(x => x.Key);
             var permitUsages = new List<PermitUsage>();
+
             foreach (var userId in userList)
             {
                 var userPermits = usagesDates.Where(x => x.UserId == userId).OrderBy(x => x.UsageDay);
                 var titleTypeId = userPermits.First().TitleTypeId;
                 var leavingStartDate = userPermits.First().UsageDay;
                 var leavingEndDate = userPermits.Last().UsageDay;
+
                 permitUsages.Add(new PermitUsage { LeavingStartDate = leavingStartDate, LeavingEndDate = leavingEndDate, MemberId = userId, TitleTypeId = titleTypeId });
             }
+
             AddPermitUsage(permitUsages);
-            return permitUsages;
+            SetUsersLeavingDates(0);
         }
-
-
 
         private List<UsagesDay> PreparePermit()
         {
-
             var usageDays = GetUsagesDays();
             var members = GetMembers();
             var titleTypes = members.GroupBy(x => x.TitleTypeId).Select(t => t.Key);
@@ -67,46 +67,54 @@ namespace PM.Service.Services
                     AddUsageDayAutomatic(member, usageDays);
                 }
             }
-            return usageDays;
+            return usageDays.Where(x => !x.IsSaved).ToList();
         }
 
 
-
-        private void AddUsageDayAutomatic(Member member, List<UsagesDay> usagesDays)
+        private int AddUsageDayAutomatic(Member member, List<UsagesDay> usagesDays)
         {
             var startDate = new DateTime(2021, 04, 01);
-            var endDate = new DateTime(2021, 8, 01);
+            var endDate = new DateTime(2021, 8, 31);
+            var publicHolidays = GetPublicHolidays();
 
             var leavingCounter = 0;
-            for (DateTime date = startDate; endDate.CompareTo(date) > 0; date = date.AddDays(1.0))
+            if (member.LeavingRight != 0)
             {
-                if (usagesDays.Any(x => x.TitleTypeId == member.TitleTypeId && x.UsageDay == date))
-                {
-                    leavingCounter = 0;
-                }
-                else if (IsWorkDay(date.DayOfWeek) && !usagesDays.Any(x => x.IsBlocked && x.UsageDay == date))
-                {
-                    leavingCounter++;
-                    var asd = member.Id;
-                }
 
-                if (leavingCounter == member.LeavingRight)
+                for (DateTime date = startDate; endDate.CompareTo(date) > 0; date = date.AddDays(1.0))
                 {
-                    for (int i = 0; i < leavingCounter; i++)
+
+                    if (usagesDays.Any(x => x.TitleTypeId == member.TitleTypeId && x.UsageDay == date))
                     {
-                        var leavingDate = date.AddDays(-i);
-                        if (IsWorkDay(leavingDate.DayOfWeek) && !usagesDays.Any(x => x.IsBlocked && x.UsageDay == leavingDate))
-                        {
-                            usagesDays.Add(new UsagesDay { IsSaved = false, TitleTypeId = member.TitleTypeId, UserId = member.Id, UsageDay = leavingDate });
-                        }
-                        else
-                        {
-                            leavingCounter++;
-                        }
+                        leavingCounter = 0;
                     }
-                    break;
+
+                    else if (IsWorkDay(date.DayOfWeek) && !usagesDays.Any(x => x.IsBlocked && x.UsageDay == date && x.TitleTypeId == member.TitleTypeId) && !publicHolidays.Contains(date))
+                    {
+                        leavingCounter++;
+                    }
+
+                    if (leavingCounter == member.LeavingRight)
+                    {
+                        for (int i = 0; i < leavingCounter; i++)
+                        {
+                            var leavingDate = date.AddDays(-i);
+                            if (IsWorkDay(leavingDate.DayOfWeek) && !usagesDays.Any(x => x.IsBlocked && x.UsageDay == leavingDate && x.TitleTypeId == member.TitleTypeId) && !publicHolidays.Contains(date))
+                            {
+                                usagesDays.Add(new UsagesDay { IsSaved = false, TitleTypeId = member.TitleTypeId, UserId = member.Id, UsageDay = leavingDate });
+                            }
+                            else
+                            {
+                                leavingCounter++;
+                            }
+                        }
+                        break;
+                    }
+
                 }
             }
+
+            return leavingCounter;
         }
 
         private List<Member> GetMembersByTitleTypeId(List<Member> members, int titleTypeId)
@@ -116,11 +124,6 @@ namespace PM.Service.Services
 
         private List<Member> GetMembers()
         {
-            //var members = new List<Member>();
-            //members.Add(new Member { FirstName = "Volkan", LastName = "Uzun", LeavingRight = 5, TitleTypeId = 1, Id = 1 });
-            //members.Add(new Member { FirstName = "İsmail", LastName = "Türüt", LeavingRight = 3, TitleTypeId = 2, Id = 3 });
-            //members.Add(new Member { FirstName = "Osman", LastName = "Uzun", LeavingRight = 8, TitleTypeId = 1, Id = 2 });
-            //return members;
             return _dbContext.Members.ToList();
         }
 
@@ -136,31 +139,13 @@ namespace PM.Service.Services
             {
                 var disableDates = (item.LeavingEndDate - item.LeavingStartDate).Days;
 
-                //var disableDates = (permitUsage.Select(x => x.LeavingEndDate).FirstOrDefault() - permitUsage.Select(q => q.LeavingStartDate).FirstOrDefault()).Days;
-
                 for (int i = 0; i <= disableDates; i++)
                 {
-                    usageDays.Add(new UsagesDay { TitleTypeId = item.TitleTypeId, UsageDay = item.LeavingStartDate.AddDays(i), IsSaved=true, IsBlocked=true });
+                    usageDays.Add(new UsagesDay { TitleTypeId = item.TitleTypeId, UsageDay = item.LeavingStartDate.AddDays(i), IsSaved = true, IsBlocked = true, UserId = item.MemberId });
                 }
             }
 
-            //usageDays.Add(new UsagesDay { TitleTypeId = 1, UsageDay = new DateTime(2021, 4, 5) });
-            //usageDays.Add(new UsagesDay { TitleTypeId = 1, UsageDay = new DateTime(2021, 4, 6) });
-            //usageDays.Add(new UsagesDay { TitleTypeId = 1, UsageDay = new DateTime(2021, 4, 7) });
-            //usageDays.Add(new UsagesDay { TitleTypeId = 1, UsageDay = new DateTime(2021, 4, 8) });
-
-
-            var publicHolidays = GetPublicHolidays();
-            AddPublicHolidaysToUsagesDays(usageDays, publicHolidays);
             return usageDays;
-        }
-
-        private void AddPublicHolidaysToUsagesDays(List<UsagesDay> usagesDays, List<PublicHoliday> publicHolidays)
-        {
-            foreach (var item in publicHolidays)
-            {
-                usagesDays.Add(new UsagesDay { IsSaved = true, UsageDay = item.StartDate, IsBlocked = true });
-            }
         }
 
         private bool IsWorkDay(DayOfWeek dayOfWeek)
@@ -168,12 +153,9 @@ namespace PM.Service.Services
             return (dayOfWeek >= DayOfWeek.Monday) && (dayOfWeek <= DayOfWeek.Friday);
         }
 
-        private List<PublicHoliday> GetPublicHolidays()
+        private DateTime[] GetPublicHolidays()
         {
-            //var publicHolidays = new List<PublicHoliday>();
-            //publicHolidays.Add(new PublicHoliday { Day = 1, Description = "test1 public", StartDate = new DateTime(2021, 4, 13) });
-            //return publicHolidays;
-            return _dbContext.PublicHolidays.ToList();
+            return _dbContext.PublicHolidays.Select(x => x.StartDate).ToArray();
         }
         private List<TitleType> GetTitles()
         {
@@ -201,6 +183,16 @@ namespace PM.Service.Services
                 }); ;
             }
             return usageLeaves;
+        }
+
+        public void SetUsersLeavingDates(int usagesDates)
+        {
+            var members = GetMembers();
+            foreach (var member in members)
+            {
+                member.LeavingRight = usagesDates;
+                Save();
+            }
         }
     }
 }
